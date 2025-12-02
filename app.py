@@ -8,37 +8,30 @@ with open('health_linear_regression_model.pkl', 'rb') as file:
     model = pickle.load(file)
 
 st.title('Prediksi Health Score')
-st.write('Masukkan parameter kesehatan untuk memprediksi Health Score.')
+st.write('Masukkan parameter kesehatan Anda untuk memprediksi Health Score.')
 
-# Sidebar input form
-st.sidebar.header('Input Parameter')
+# ----- USER INPUT (NUMBER INPUT, BUKAN SLIDER) -----
 
-def user_input_features():
-    BMI = st.sidebar.slider('BMI', 10.0, 50.0, 25.0)
-    Exercise_Frequency = st.sidebar.slider('Frekuensi Olahraga (per minggu)', 0, 14, 3)
-    Diet_Quality = st.sidebar.slider('Kualitas Diet (0 - 100)', 0, 100, 50)
-    Sleep_Hours = st.sidebar.slider('Jam Tidur per Hari', 0.0, 12.0, 7.0)
+bmi = st.number_input('BMI', min_value=10.0, max_value=60.0, step=0.1)
+exercise = st.number_input('Frekuensi Olahraga (kali/minggu)', min_value=0, max_value=14, step=1)
+diet = st.number_input('Diet Quality (0-100)', min_value=0, max_value=100, step=1)
+sleep = st.number_input('Jam Tidur per Hari', min_value=0.0, max_value=15.0, step=0.1)
 
-    data = {
-        'BMI': BMI,
-        'Exercise_Frequency': Exercise_Frequency,
-        'Diet_Quality': Diet_Quality,
-        'Sleep_Hours': Sleep_Hours
-    }
-    features = pd.DataFrame(data, index=[0])
-    return features
+# Prepare data for prediction
+input_data = pd.DataFrame({
+    'BMI': [bmi],
+    'Exercise_Frequency': [exercise],
+    'Diet_Quality': [diet],
+    'Sleep_Hours': [sleep]
+})
 
-df_input = user_input_features()
+st.subheader('Data yang Anda Masukkan:')
+st.write(input_data)
 
-st.subheader('Parameter Input Pengguna')
-st.write(df_input)
-
-# Make prediction
-if st.sidebar.button('Prediksi Health Score'):
+if st.button('Prediksi Health Score'):
     try:
-        prediction = model.predict(df_input)
-        st.subheader('Hasil Prediksi Health Score:')
-        st.write(f"Health Score Diprediksi: {prediction[0]:.2f}")
+        prediction = model.predict(input_data)
+        st.subheader('Hasil Prediksi:')
+        st.write(f"Health Score Anda diprediksi: **{prediction[0]:.2f}**")
     except Exception as e:
-        st.error(f'Terjadi kesalahan saat membuat prediksi: {e}')
-
+        st.error(f"Terjadi error saat prediksi: {e}")
